@@ -19,11 +19,15 @@ int main(void){
         updatePlayerY(&megaman, floor);
         updatePlayerState(&megaman);
         updatePlayerAnimation(&megaman);
+        handleShooting(megaman);
+        updatePlayerProjectiles(megaman);
+
 
         BeginDrawing();
             ClearBackground(RAYWHITE);
             DrawRectangleRec(floor, BLUE);
             drawPlayer(megaman);
+            drawPlayerProjectiles(megaman);
             
         EndDrawing();
     }

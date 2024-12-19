@@ -2,17 +2,18 @@
 
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 600
-#define GRAVITY 20
+#define GRAVITY 30
+
 
 // sprite sheet coordinates:
-#define FRAME_IDLE_0 (Rectangle){1, 21, 24, 24}
-#define FRAME_IDLE_1 (Rectangle){26, 21, 24, 24}
+#define FRAME_IDLE_0 (Rectangle){0, 0, 24, 24}
+#define FRAME_IDLE_1 (Rectangle){24, 0, 24, 24}
 
-#define FRAME_RUN_0 (Rectangle){95, 21, 24, 24}
-#define FRAME_RUN_1 (Rectangle){95+24, 21, 24, 24}
-#define FRAME_RUN_2 (Rectangle){95+48, 21, 24, 24}
+#define FRAME_RUN_0 (Rectangle){48, 0, 24, 24}
+#define FRAME_RUN_1 (Rectangle){72, 0, 24, 24}
+#define FRAME_RUN_2 (Rectangle){96, 0, 24, 24}
 
-#define FRAME_JUMP (Rectangle){177, 12, 26, 30}
+#define FRAME_JUMP (Rectangle){120, 0, 32, 32}
 
 Rectangle idleAnimation[2] = {FRAME_IDLE_0, FRAME_IDLE_1};
 Rectangle runAnimation[3] = {FRAME_RUN_0, FRAME_RUN_1, FRAME_RUN_2};
@@ -21,26 +22,29 @@ void initPlayer(PLAYER *player) {
     player->position = (Vector2){SCREEN_WIDTH / 2.0, SCREEN_HEIGHT - 48};
     player->speed = (Vector2){0, 0};
     player->size = (Vector2){24, 24};
-    player->spriteSheet = LoadTexture("assets/sprites/player-sheet.png");
+    player->spriteSheet = LoadTexture("assets/sprites/sprites.png");
     player->facingRight = true;
     player->currentAnimation = idleAnimation; 
     player->frameCount = 2;                   
     player->currentFrameIndex = 0;
     player->frameTime = 0.0f;
     player->frameSpeed = 0.4f;
+    for (int i = 0; i < N_BULLETS; i++){
+        player->projectiles->isActive = false;
+    }
 }
 
 
 void drawPlayer (PLAYER player){
-    Rectangle dest = {player.position.x, 
-    player.position.y, 
-    player.size.x,
-    player.size.y
-    };
-
     Rectangle source = player.currentAnimation[player.currentFrameIndex];
 
     source.width *= (player.facingRight ? -1.0f : 1.0f);
+
+    Rectangle dest = {player.position.x, 
+        player.position.y, 
+        player.size.x,
+        player.size.y
+        };
 
     DrawTexturePro(player.spriteSheet, source, dest, (Vector2){0,0}, 0.0f, WHITE);
 }
@@ -102,16 +106,51 @@ void updatePlayerState(PLAYER *player) {
     if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
         player->currentAnimation = runAnimation;
         player->frameCount = 3;
-        player->frameSpeed = 0.1f;
+        player->frameSpeed = 0.01f;
         player->facingRight = true;
     } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
         player->currentAnimation = runAnimation;
         player->frameCount = 3;
-        player->frameSpeed = 0.1f;
+        player->frameSpeed = 0.01f;
         player->facingRight = false;
     } else {
         player->currentAnimation = idleAnimation;
         player->frameCount = 2;
         player->frameSpeed = 0.4f;
+    }
+}
+
+bool isShooting(PLAYER player){
+    if (IsKeyPressed(KEY_LEFT_CONTROL)){
+        return true;
+    }else {
+        return false;
+    }
+}
+
+void handleShooting(PLAYER player){
+    if (isShooting(player)){
+        for (int i = 0; i < N_BULLETS; i++){
+            if(player.projectiles[i].isActive == false){
+                initProjectile(player, &player.projectiles[i]);
+                break;
+            }
+        }
+    }
+}
+
+void updatePlayerProjectiles(PLAYER player){
+    for (int i = 0; i < N_BULLETS; i++){
+        if (player.projectiles[i].isActive){
+            updateProjectile(player, &player.projectiles[i]);
+        }
+    }
+}
+
+void drawPlayerProjectiles(PLAYER player){
+    for (int i = 0; i < N_BULLETS; i++){
+        if(player.projectiles[i].isActive){
+            drawProjectile(player.projectiles[i]);
+        }
     }
 }

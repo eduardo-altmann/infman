@@ -2,6 +2,9 @@
 #define PLAYER_H
 
 #include "raylib.h"
+#include "projectile.h"
+
+#define N_BULLETS 10
 
 typedef struct {
     Vector2 position;
@@ -14,7 +17,8 @@ typedef struct {
     int frameCount;              
     int currentFrameIndex;       
     float frameTime;             
-    float frameSpeed;           
+    float frameSpeed;   
+    PROJECTILE projectiles[N_BULLETS];        
 }PLAYER;
 
 void initPlayer(PLAYER *player);
@@ -30,5 +34,13 @@ void updatePlayerY(PLAYER *player, Rectangle floor);
 void updatePlayerAnimation(PLAYER *player);
 
 void updatePlayerState(PLAYER *player);
+
+bool isShooting(PLAYER player);
+
+void handleShooting(PLAYER player);
+
+void updatePlayerProjectiles(PLAYER player);
+
+void drawPlayerProjectiles(PLAYER player);
 
 #endif
