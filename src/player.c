@@ -1,51 +1,8 @@
-#include "raylib.h"
-#include <stdbool.h>
+#include "player.h"
 
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 600
-#define FPS 60
 #define GRAVITY 20
-
-typedef struct {
-    Vector2 position;
-    Vector2 speed;
-    Vector2 size;
-    bool jumpAllowed;
-}PLAYER;
-
-void initPlayer(PLAYER *player);
-
-void drawPlayer (PLAYER player);
-
-bool playerCollided(PLAYER *player, Rectangle floor);
-
-void updatePlayerX(PLAYER *player);
-
-void updatePlayerY(PLAYER *player, Rectangle floor);
-
-int main(void){
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "INFMAN");
-    SetTargetFPS(FPS);
-
-    PLAYER megaman;
-    Rectangle floor = {0, SCREEN_HEIGHT-16, SCREEN_WIDTH, 16};
-
-    initPlayer(&megaman);
-
-    while(!WindowShouldClose()){
-        updatePlayerX(&megaman);
-        updatePlayerY(&megaman, floor);
-
-        BeginDrawing();
-            ClearBackground(RAYWHITE);
-            DrawRectangleRec(floor, BLUE);
-            drawPlayer(megaman);
-            
-        EndDrawing();
-    }
-
-    return 0;
-}
 
 void initPlayer(PLAYER *player){
     player->position = (Vector2){SCREEN_WIDTH/2.0, SCREEN_HEIGHT-48};
