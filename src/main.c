@@ -17,6 +17,8 @@ int main(void){
     while(!WindowShouldClose()){
         updatePlayerX(&megaman);
         updatePlayerY(&megaman, floor);
+        updatePlayerState(&megaman);
+        updatePlayerAnimation(&megaman);
 
         BeginDrawing();
             ClearBackground(RAYWHITE);

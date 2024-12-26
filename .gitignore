@@ -1,0 +1,29 @@
+# Compiled object files
+*.o
+
+# Compiled binary files (executables)
+build/
+main
+
+# Debug files
+*.dSYM/
+*.stackdump
+*.log
+
+# Editor/IDE specific files
+.vscode/
+*.code-workspace
+*.sublime-workspace
+*.sublime-project
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*.tmp
+*~
+
+# Raylib build artifacts (if applicable)
+.raylib/
