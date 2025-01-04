@@ -10,6 +10,7 @@ typedef struct {
     float speed;
     Vector2 size;
     bool isActive;
+    bool movingRight;
 } PROJECTILE;
 
 typedef struct {
@@ -25,6 +26,9 @@ typedef struct {
     float frameTime;             
     float frameSpeed;   
     PROJECTILE projectiles[N_BULLETS];        
+    bool isShooting;
+    float shootCooldown;
+    float maxShootCooldown;
 } PLAYER;
 
 #endif

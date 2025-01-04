@@ -3,7 +3,7 @@
 
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 600
-#define GRAVITY 30
+#define GRAVITY 40
 
 
 // sprite sheet coordinates:
@@ -14,10 +14,19 @@
 #define FRAME_RUN_1 (Rectangle){72, 0, 24, 24}
 #define FRAME_RUN_2 (Rectangle){96, 0, 24, 24}
 
+#define FRAME_SHOOT_IDLE (Rectangle) {24*5 + 32*2, 0, 32, 24}
+
+#define FRAME_SHOOT_RUN_0 (Rectangle) {24*5 + 32*3, 0, 32, 24}
+#define FRAME_SHOOT_RUN_1 (Rectangle) {24*5 + 32*4, 0, 32, 24}
+#define FRAME_SHOOT_RUN_2 (Rectangle) {24*5 + 32*5, 0, 32, 24}
+
+
 #define FRAME_JUMP (Rectangle){120, 0, 32, 32}
 
 Rectangle idleAnimation[2] = {FRAME_IDLE_0, FRAME_IDLE_1};
 Rectangle runAnimation[3] = {FRAME_RUN_0, FRAME_RUN_1, FRAME_RUN_2};
+Rectangle idleShootAnimation[1] = {FRAME_SHOOT_IDLE};
+Rectangle runShootAnimation[3] = {FRAME_SHOOT_RUN_0, FRAME_SHOOT_RUN_1, FRAME_SHOOT_RUN_2};
 
 void initPlayer(PLAYER *player) {
     player->position = (Vector2){SCREEN_WIDTH / 2.0, SCREEN_HEIGHT - 48};
@@ -33,6 +42,9 @@ void initPlayer(PLAYER *player) {
     for (int i = 0; i < N_BULLETS; i++){
         player->projectiles[i].isActive = false;
     }
+    player->isShooting = false;
+    player->shootCooldown = 0;
+    player->maxShootCooldown = 0.3f;
 }
 
 
@@ -43,8 +55,8 @@ void drawPlayer (PLAYER player){
 
     Rectangle dest = {player.position.x, 
         player.position.y, 
-        player.size.x,
-        player.size.y
+        source.width,
+        source.height
         };
 
     DrawTexturePro(player.spriteSheet, source, dest, (Vector2){0,0}, 0.0f, WHITE);
@@ -60,11 +72,11 @@ bool playerCollided(PLAYER *player, Rectangle floor){
 
 void updatePlayerX(PLAYER *player){
     if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)){
-        player->speed.x += 3;
+        player->speed.x += 1.5;
         player->facingRight = true;
         
     } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-        player->speed.x -= 3;
+        player->speed.x -= 1.5;
         player->facingRight = false;
         
     }
@@ -103,24 +115,6 @@ void updatePlayerAnimation(PLAYER *player) {
     }
 }
 
-void updatePlayerState(PLAYER *player) {
-    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
-        player->currentAnimation = runAnimation;
-        player->frameCount = 3;
-        player->frameSpeed = 0.01f;
-        player->facingRight = true;
-    } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-        player->currentAnimation = runAnimation;
-        player->frameCount = 3;
-        player->frameSpeed = 0.01f;
-        player->facingRight = false;
-    } else {
-        player->currentAnimation = idleAnimation;
-        player->frameCount = 2;
-        player->frameSpeed = 0.4f;
-    }
-}
-
 bool isShooting(PLAYER player){
     if (IsKeyPressed(KEY_LEFT_CONTROL)){
         return true;
@@ -129,11 +123,59 @@ bool isShooting(PLAYER player){
     }
 }
 
+void updatePlayerState(PLAYER *player) {
+    // se o cooldown ainda não terminou, diminui ele
+    if (player->shootCooldown > 0){
+        player->shootCooldown -= GetFrameTime();
+    }
+    //se o cooldown terminou e o player ta atirando, atualiza
+    if (isShooting(*player) && player->shootCooldown <= 0){
+        player->isShooting = true;
+        player->shootCooldown = player->maxShootCooldown;
+    }
+    // se cooldown acabou não ta atirando
+    if (player->shootCooldown <= 0){
+        player->isShooting = false;
+    }
+    if(player->isShooting){
+        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
+            player->currentAnimation = runShootAnimation;
+            player->frameCount = 3;
+            player->frameSpeed = 0.15f;
+            player->facingRight = true;
+        } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
+            player->currentAnimation = runShootAnimation;
+            player->frameCount = 3;
+            player->frameSpeed = 0.15f;
+            player->facingRight = false;
+        } else {
+            player->currentAnimation = idleShootAnimation;
+            player->frameCount = 1;
+            player->frameSpeed = 0.4f;
+        }
+    } else {
+        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
+            player->currentAnimation = runAnimation;
+            player->frameCount = 3;
+            player->frameSpeed = 0.15f;
+            player->facingRight = true;
+        } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
+            player->currentAnimation = runAnimation;
+            player->frameCount = 3;
+            player->frameSpeed = 0.15f;
+            player->facingRight = false;
+        } else {
+            player->currentAnimation = idleAnimation;
+            player->frameCount = 2;
+            player->frameSpeed = 0.4f;
+        }
+    }
+}
 
-void handleShooting(PLAYER* player){  // Changed to pointer
-    if (isShooting(*player)){  // Pass the value for checking
+void handleShooting(PLAYER* player){
+    if (isShooting(*player)){
         for (int i = 0; i < N_BULLETS; i++){
-            if(player->projectiles[i].isActive == false){  // Use . instead of ->
+            if(player->projectiles[i].isActive == false){
                 initProjectile(player, &player->projectiles[i]);
                 break;
             }
@@ -141,7 +183,7 @@ void handleShooting(PLAYER* player){  // Changed to pointer
     }
 }
 
-void updatePlayerProjectiles(PLAYER* player){  // Changed to pointer
+void updatePlayerProjectiles(PLAYER* player){
     for (int i = 0; i < N_BULLETS; i++){
         if (player->projectiles[i].isActive){
             updateProjectile(player, &player->projectiles[i]);
@@ -149,7 +191,7 @@ void updatePlayerProjectiles(PLAYER* player){  // Changed to pointer
     }
 }
 
-void drawPlayerProjectiles(PLAYER player){  // This can stay as value since we're just reading
+void drawPlayerProjectiles(PLAYER player){
     for (int i = 0; i < N_BULLETS; i++){
         if(player.projectiles[i].isActive){
             drawProjectile(player.projectiles[i]);
