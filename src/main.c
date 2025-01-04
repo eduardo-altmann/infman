@@ -19,8 +19,8 @@ int main(void){
         updatePlayerY(&megaman, floor);
         updatePlayerState(&megaman);
         updatePlayerAnimation(&megaman);
-        handleShooting(megaman);
-        updatePlayerProjectiles(megaman);
+        handleShooting(&megaman);
+        updatePlayerProjectiles(&megaman);
 
 
         BeginDrawing();

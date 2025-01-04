@@ -1,3 +1,4 @@
+#include "projectile.h"
 #include "player.h"
 
 #define SCREEN_WIDTH 1200
@@ -30,7 +31,7 @@ void initPlayer(PLAYER *player) {
     player->frameTime = 0.0f;
     player->frameSpeed = 0.4f;
     for (int i = 0; i < N_BULLETS; i++){
-        player->projectiles->isActive = false;
+        player->projectiles[i].isActive = false;
     }
 }
 
@@ -128,26 +129,27 @@ bool isShooting(PLAYER player){
     }
 }
 
-void handleShooting(PLAYER player){
-    if (isShooting(player)){
+
+void handleShooting(PLAYER* player){  // Changed to pointer
+    if (isShooting(*player)){  // Pass the value for checking
         for (int i = 0; i < N_BULLETS; i++){
-            if(player.projectiles[i].isActive == false){
-                initProjectile(player, &player.projectiles[i]);
+            if(player->projectiles[i].isActive == false){  // Use . instead of ->
+                initProjectile(player, &player->projectiles[i]);
                 break;
             }
         }
     }
 }
 
-void updatePlayerProjectiles(PLAYER player){
+void updatePlayerProjectiles(PLAYER* player){  // Changed to pointer
     for (int i = 0; i < N_BULLETS; i++){
-        if (player.projectiles[i].isActive){
-            updateProjectile(player, &player.projectiles[i]);
+        if (player->projectiles[i].isActive){
+            updateProjectile(player, &player->projectiles[i]);
         }
     }
 }
 
-void drawPlayerProjectiles(PLAYER player){
+void drawPlayerProjectiles(PLAYER player){  // This can stay as value since we're just reading
     for (int i = 0; i < N_BULLETS; i++){
         if(player.projectiles[i].isActive){
             drawProjectile(player.projectiles[i]);

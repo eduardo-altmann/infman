@@ -18,7 +18,7 @@ all: $(TARGET)
 
 # Build target
 $(TARGET): $(OBJ_FILES) | $(BUILD_DIR)
-	$(CC) $(OBJ_FILES) -o $@ -lraylib -lm
+	$(CC) $(OBJ_FILES) -o $@ -lraylib -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL
 
 # Object files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
