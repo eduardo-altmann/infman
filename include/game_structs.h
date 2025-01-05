@@ -5,7 +5,7 @@
 
 #define N_BULLETS 10
 
-typedef struct {
+typedef struct projectile{
     Vector2 position;
     float speed;
     Vector2 size;
@@ -13,7 +13,7 @@ typedef struct {
     bool movingRight;
 } PROJECTILE;
 
-typedef struct {
+typedef struct player{
     Vector2 position;
     Vector2 speed;
     Vector2 size;
@@ -30,5 +30,21 @@ typedef struct {
     float shootCooldown;
     float maxShootCooldown;
 } PLAYER;
+
+typedef struct enemy{
+    Vector2 position;
+    float speed;
+    Vector2 size;
+    Texture2D spriteSheet;
+    int frameCount;              
+    int currentFrameIndex;       
+    float frameTime;             
+    float frameSpeed; 
+    Rectangle *currentAnimation;
+    bool facingRight;
+    bool isAlive;
+    float patrolDistance;
+    float initialX;
+} ENEMY;
 
 #endif

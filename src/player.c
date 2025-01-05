@@ -3,7 +3,7 @@
 
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 600
-#define GRAVITY 40
+#define GRAVITY 50
 
 
 // sprite sheet coordinates:
@@ -29,7 +29,7 @@ Rectangle idleShootAnimation[1] = {FRAME_SHOOT_IDLE};
 Rectangle runShootAnimation[3] = {FRAME_SHOOT_RUN_0, FRAME_SHOOT_RUN_1, FRAME_SHOOT_RUN_2};
 
 void initPlayer(PLAYER *player) {
-    player->position = (Vector2){SCREEN_WIDTH / 2.0, SCREEN_HEIGHT - 48};
+    player->position = (Vector2){32, SCREEN_HEIGHT - 48};
     player->speed = (Vector2){0, 0};
     player->size = (Vector2){24, 24};
     player->spriteSheet = LoadTexture("assets/sprites/sprites.png");
@@ -72,11 +72,11 @@ bool playerCollided(PLAYER *player, Rectangle floor){
 
 void updatePlayerX(PLAYER *player){
     if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)){
-        player->speed.x += 1.5;
+        player->speed.x += 1;
         player->facingRight = true;
         
     } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-        player->speed.x -= 1.5;
+        player->speed.x -= 1;
         player->facingRight = false;
         
     }
