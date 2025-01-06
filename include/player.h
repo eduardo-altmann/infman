@@ -15,6 +15,7 @@ void updatePlayerProjectiles(PLAYER *player);
 void drawPlayerProjectiles(PLAYER player);
 bool wasPlayerHit(PLAYER *player, ENEMY *enemy);
 void causeDamage(PLAYER *player, ENEMY *enemy);
-
+void causeDamageByEnemies(PLAYER *player, ENEMY enemies[], int n_enemies);
+void playerSpiked(PLAYER *player);
 
 #endif

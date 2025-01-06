@@ -27,7 +27,7 @@ int main(void){
     BLOCK obstacle;
 
     initPlayer(&megaman);
-    initEnemy(&enemies[0], (Vector2){960, SCREEN_HEIGHT-48});
+    initEnemy(&enemies[0], (Vector2){600, SCREEN_HEIGHT-48});
     for (int i = 0; i < 50; i++){
         initBlock(&normalBlocks[i], (Vector2){i*16, SCREEN_HEIGHT-16}, NORMAL_BLOCK);
     }
@@ -45,7 +45,8 @@ int main(void){
         updateEnemyAnimation(&enemies[0]);
         updateEnemiesAndProjectiles(enemies, 1, megaman.projectiles, N_BULLETS);
 
-        causeDamage(&megaman, &enemies[0]);
+        causeDamageByEnemies(&megaman, enemies, 1);
+        playerSpiked(&megaman);
 
         camera.target.x = megaman.position.x - ((1200/3.75)/2) + 12;
 

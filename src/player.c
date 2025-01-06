@@ -23,6 +23,7 @@
 #define FRAME_SHOOT_RUN_2 (Rectangle) {24*5 + 32*5, 0, 32, 24}
 
 #define FRAME_JUMP (Rectangle){120, 0, 32, 32}
+#define FRAME_SHOOT_JUMP (Rectangle){310, 0, 32, 32}
 #define FRAME_DAMAGE (Rectangle){152, 0, 32, 32}
 
 Rectangle idleAnimation[2] = {FRAME_IDLE_0, FRAME_IDLE_1};
@@ -30,6 +31,8 @@ Rectangle runAnimation[3] = {FRAME_RUN_0, FRAME_RUN_1, FRAME_RUN_2};
 Rectangle idleShootAnimation[1] = {FRAME_SHOOT_IDLE};
 Rectangle runShootAnimation[3] = {FRAME_SHOOT_RUN_0, FRAME_SHOOT_RUN_1, FRAME_SHOOT_RUN_2};
 Rectangle damageAnimation[1] = {FRAME_DAMAGE};
+Rectangle jumpAnimation[1] = {FRAME_JUMP};
+Rectangle jumpShootAnimation[1] = {FRAME_SHOOT_JUMP};
 
 void initPlayer(PLAYER *player) {
     player->position = (Vector2){32, SCREEN_HEIGHT - 48};
@@ -126,69 +129,52 @@ bool isShooting(PLAYER player){
 }
 
 void updatePlayerState(PLAYER *player) {
-    // se o cooldown ainda não terminou, diminui ele
-    if (player->shootCooldown > 0){
+    if (player->shootCooldown > 0) {
         player->shootCooldown -= GetFrameTime();
+        if (player->shootCooldown <= 0) {
+            player->isShooting = false;
+        }
     }
-    //se o cooldown terminou e o player ta atirando, atualiza
-    if (isShooting(*player) && player->shootCooldown <= 0){
+    
+    if (isShooting(*player) && player->shootCooldown <= 0) {
         player->isShooting = true;
         player->shootCooldown = player->maxShootCooldown;
     }
-    // se cooldown acabou não ta atirando
-    if (player->shootCooldown <= 0){
-        player->isShooting = false;
-    }
+
+    AnimationState currentState;
     
-    if(player->isShooting){
-        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
-            player->currentAnimation = runShootAnimation;
-            player->frameCount = 3;
-            player->frameSpeed = 0.15f;
-            player->facingRight = true;
-        } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-            player->currentAnimation = runShootAnimation;
-            player->frameCount = 3;
-            player->frameSpeed = 0.15f;
-            player->facingRight = false;
+    if (player->beingHit) {
+        currentState = (AnimationState){damageAnimation, 1, 0.3f};
+    }
+    else if (player->isShooting && player->speed.y != 0) {
+        currentState = (AnimationState){jumpShootAnimation, 1, 0.3f};
+    }
+    else if (player->isShooting) {
+        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) {
+            currentState = (AnimationState){runShootAnimation, 3, 0.15f};
         } else {
-            player->currentAnimation = idleShootAnimation;
-            player->frameCount = 1;
-            player->frameSpeed = 0.4f;
-        }
-    } else if (player->beingHit) {
-        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
-            player->currentAnimation = damageAnimation;
-            player->frameCount = 1;
-            player->frameSpeed = 0.3f;
-            player->facingRight = true;
-        } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-            player->currentAnimation = damageAnimation;
-            player->frameCount = 1;
-            player->frameSpeed = 0.3f;
-            player->facingRight = false;
-        } else {
-            player->currentAnimation = damageAnimation;
-            player->frameCount = 1;
-            player->frameSpeed = 0.3f;
-        }
-    } else {
-        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
-            player->currentAnimation = runAnimation;
-            player->frameCount = 3;
-            player->frameSpeed = 0.15f;
-            player->facingRight = true;
-        } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-            player->currentAnimation = runAnimation;
-            player->frameCount = 3;
-            player->frameSpeed = 0.15f;
-            player->facingRight = false;
-        } else {
-            player->currentAnimation = idleAnimation;
-            player->frameCount = 2;
-            player->frameSpeed = 0.4f;
+            currentState = (AnimationState){idleShootAnimation, 1, 0.4f};
         }
     }
+    else if (player->speed.y != 0) {
+        currentState = (AnimationState){jumpAnimation, 1, 0.3f};
+    }
+    else if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) {
+        currentState = (AnimationState){runAnimation, 3, 0.15f};
+    }
+    else {
+        currentState = (AnimationState){idleAnimation, 2, 0.4f};
+    }
+
+    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
+        player->facingRight = true;
+    } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
+        player->facingRight = false;
+    }
+
+    player->currentAnimation = currentState.animation;
+    player->frameCount = currentState.frameCount;
+    player->frameSpeed = currentState.frameSpeed;
 }
 
 void handleShooting(PLAYER* player){
@@ -235,7 +221,25 @@ void causeDamage(PLAYER *player, ENEMY *enemy){
         player->damageCooldown -= GetFrameTime();
     }
     //se o cooldown terminou e o player ta sofrendo dano, atualiza
-    if ((wasPlayerHit(player, enemy) || player->beingSpiked) && player->damageCooldown <= 0){
+    if (wasPlayerHit(player, enemy) && player->damageCooldown <= 0){
+        player->beingHit = true;
+        player->damageCooldown = player->maxDamageCooldown;
+        player->lives -= 1;
+        printf("\nVidas: %d\n", player->lives);
+    }
+    // se só o cooldown acabou não ta sofrendo dano
+    if (player->damageCooldown <= 0){
+        player->beingHit = false;
+    }
+}
+
+void playerSpiked(PLAYER *player){
+    // se o cooldown ainda não terminou, diminui ele
+    if (player->damageCooldown > 0){
+        player->damageCooldown -= GetFrameTime();
+    }
+    //se o cooldown terminou e o player ta sofrendo dano, atualiza
+    if (player->beingSpiked && player->damageCooldown <= 0){
         player->beingHit = true;
         player->damageCooldown = player->maxDamageCooldown;
         player->lives -= 1;
@@ -245,5 +249,11 @@ void causeDamage(PLAYER *player, ENEMY *enemy){
     if (player->damageCooldown <= 0){
         player->beingHit = false;
         player->beingSpiked = false;
+    }
+}
+
+void causeDamageByEnemies(PLAYER *player, ENEMY enemies[], int n_enemies){
+    for (int i = 0; i < n_enemies; i++){
+        causeDamage(player, &enemies[i]);
     }
 }

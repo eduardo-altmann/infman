@@ -64,4 +64,10 @@ typedef struct block {
     BlockType type;
 } BLOCK;
 
+typedef struct AnimationState {
+    Rectangle* animation;
+    int frameCount;
+    float frameSpeed;
+} AnimationState;
+
 #endif
