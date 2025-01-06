@@ -1,5 +1,7 @@
 #include "projectile.h"
 #include "player.h"
+#include "map.h"
+#include <stdio.h>
 
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 600
@@ -20,13 +22,14 @@
 #define FRAME_SHOOT_RUN_1 (Rectangle) {24*5 + 32*4, 0, 32, 24}
 #define FRAME_SHOOT_RUN_2 (Rectangle) {24*5 + 32*5, 0, 32, 24}
 
-
 #define FRAME_JUMP (Rectangle){120, 0, 32, 32}
+#define FRAME_DAMAGE (Rectangle){152, 0, 32, 32}
 
 Rectangle idleAnimation[2] = {FRAME_IDLE_0, FRAME_IDLE_1};
 Rectangle runAnimation[3] = {FRAME_RUN_0, FRAME_RUN_1, FRAME_RUN_2};
 Rectangle idleShootAnimation[1] = {FRAME_SHOOT_IDLE};
 Rectangle runShootAnimation[3] = {FRAME_SHOOT_RUN_0, FRAME_SHOOT_RUN_1, FRAME_SHOOT_RUN_2};
+Rectangle damageAnimation[1] = {FRAME_DAMAGE};
 
 void initPlayer(PLAYER *player) {
     player->position = (Vector2){32, SCREEN_HEIGHT - 48};
@@ -45,6 +48,10 @@ void initPlayer(PLAYER *player) {
     player->isShooting = false;
     player->shootCooldown = 0;
     player->maxShootCooldown = 0.3f;
+    player->lives = 3;
+    player->damageCooldown = 0;
+    player->maxDamageCooldown = 0.3f;
+    player->beingSpiked = false;
 }
 
 
@@ -62,15 +69,7 @@ void drawPlayer (PLAYER player){
     DrawTexturePro(player.spriteSheet, source, dest, (Vector2){0,0}, 0.0f, WHITE);
 }
 
-bool playerCollided(PLAYER *player, Rectangle floor){
-    Rectangle playerHitbox = {player->position.x, player->position.y, player->size.x, player->size.y};
-
-    bool collided = CheckCollisionRecs(playerHitbox, floor);
-
-    return collided;
-}
-
-void updatePlayerX(PLAYER *player){
+void updatePlayerX(PLAYER *player, int blockCount, BLOCK blocks[]){
     if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)){
         player->speed.x += 1;
         player->facingRight = true;
@@ -84,23 +83,26 @@ void updatePlayerX(PLAYER *player){
     player->speed.x /= 1.2;
 
     player->position.x += player->speed.x;
+
+    for(int i = 0; i < blockCount; i++) {
+        handleBlockCollision(player, blocks[i]);
+    }
 }
 
-void updatePlayerY(PLAYER *player, Rectangle floor){
+void updatePlayerY(PLAYER *player, int blockCount, BLOCK blocks[]){
     player->speed.y += GRAVITY * GetFrameTime();
-
-    if (playerCollided(player, floor)){
-        player->position.y = floor.y - player->size.y;
-        player->speed.y = 0;
-        player->jumpAllowed = true;
-    }
-
-    if ((IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_W) || IsKeyDown(KEY_UP))&& player->jumpAllowed){
+    
+    if ((IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) && player->jumpAllowed){
         player->speed.y = -10;
         player->jumpAllowed = false;
-    } 
-
+    }
+    
     player->position.y += player->speed.y;
+    
+
+    for(int i = 0; i < blockCount; i++) {
+        handleBlockCollision(player, blocks[i]);
+    }
 }
 
 void updatePlayerAnimation(PLAYER *player) {
@@ -137,6 +139,7 @@ void updatePlayerState(PLAYER *player) {
     if (player->shootCooldown <= 0){
         player->isShooting = false;
     }
+    
     if(player->isShooting){
         if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
             player->currentAnimation = runShootAnimation;
@@ -152,6 +155,22 @@ void updatePlayerState(PLAYER *player) {
             player->currentAnimation = idleShootAnimation;
             player->frameCount = 1;
             player->frameSpeed = 0.4f;
+        }
+    } else if (player->beingHit) {
+        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
+            player->currentAnimation = damageAnimation;
+            player->frameCount = 1;
+            player->frameSpeed = 0.3f;
+            player->facingRight = true;
+        } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
+            player->currentAnimation = damageAnimation;
+            player->frameCount = 1;
+            player->frameSpeed = 0.3f;
+            player->facingRight = false;
+        } else {
+            player->currentAnimation = damageAnimation;
+            player->frameCount = 1;
+            player->frameSpeed = 0.3f;
         }
     } else {
         if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
@@ -196,5 +215,35 @@ void drawPlayerProjectiles(PLAYER player){
         if(player.projectiles[i].isActive){
             drawProjectile(player.projectiles[i]);
         }
+    }
+}
+
+bool wasPlayerHit(PLAYER *player, ENEMY *enemy){
+    if (enemy->isAlive){
+        Rectangle playerHitbox = {player->position.x, player->position.y, player->size.x, player->size.y};
+
+        Rectangle enemyHitbox = {enemy->position.x, enemy->position.y, enemy->size.x, enemy->size.y};
+
+        return CheckCollisionRecs(playerHitbox, enemyHitbox);
+    } else return false;
+    
+}
+
+void causeDamage(PLAYER *player, ENEMY *enemy){
+    // se o cooldown ainda não terminou, diminui ele
+    if (player->damageCooldown > 0){
+        player->damageCooldown -= GetFrameTime();
+    }
+    //se o cooldown terminou e o player ta sofrendo dano, atualiza
+    if ((wasPlayerHit(player, enemy) || player->beingSpiked) && player->damageCooldown <= 0){
+        player->beingHit = true;
+        player->damageCooldown = player->maxDamageCooldown;
+        player->lives -= 1;
+        printf("\nVidas: %d\n", player->lives);
+    }
+    // se só o cooldown acabou não ta sofrendo dano
+    if (player->damageCooldown <= 0){
+        player->beingHit = false;
+        player->beingSpiked = false;
     }
 }

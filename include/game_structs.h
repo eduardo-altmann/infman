@@ -29,6 +29,11 @@ typedef struct player{
     bool isShooting;
     float shootCooldown;
     float maxShootCooldown;
+    int lives;
+    float damageCooldown;
+    float maxDamageCooldown;
+    bool beingHit;
+    bool beingSpiked;
 } PLAYER;
 
 typedef struct enemy{
@@ -46,5 +51,17 @@ typedef struct enemy{
     float patrolDistance;
     float initialX;
 } ENEMY;
+
+typedef enum {
+    NORMAL_BLOCK,
+    SPIKE_BLOCK
+} BlockType;
+
+typedef struct block {
+    Vector2 position;
+    Vector2 size;
+    Texture2D texture;
+    BlockType type;
+} BLOCK;
 
 #endif
