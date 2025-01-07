@@ -12,5 +12,6 @@ void parseMap(char fileName[], BLOCK blocks[], int *n_blocks, PLAYER *player, EN
 BACKGROUND initBackground(char filename[], float levelWidth, float screenHeight);
 void drawBackground(BACKGROUND bg, Camera2D camera);
 void unloadBackground(BACKGROUND *bg);
+void gui(PLAYER *player);
 
 #endif

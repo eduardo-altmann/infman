@@ -54,6 +54,7 @@ void initPlayer(PLAYER *player, Vector2 position) {
     player->lives = 3;
     player->damageCooldown = 0;
     player->maxDamageCooldown = 1.0f;
+    player->points = 0;
 }
 
 

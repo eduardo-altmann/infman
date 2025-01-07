@@ -168,3 +168,13 @@ void drawBackground(BACKGROUND bg, Camera2D camera) {
 void unloadBackground(BACKGROUND *bg) {
     UnloadTexture(bg->texture);
 }
+
+void gui(PLAYER *player) {
+    char lifeText[16];
+    snprintf(lifeText, sizeof(lifeText), "Life: %d", player->lives);
+    DrawText(lifeText, 5, 90, 30, LIGHTGRAY);
+
+    char scoreText[16];
+    snprintf(scoreText, sizeof(scoreText), "Score: %d", player->points);
+    DrawText(scoreText, 5, 125, 30, LIGHTGRAY);
+}

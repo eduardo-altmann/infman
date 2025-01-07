@@ -70,7 +70,7 @@ bool wasEnemyHit(ENEMY *enemy, PROJECTILE bullet){
     return CheckCollisionRecs(enemyHitbox, bulletHitbox);
 }
 
-void updateEnemiesAndProjectiles(ENEMY enemies[], int n_enemies, PROJECTILE bullets[], int n_bullets){
+void updateEnemiesAndProjectiles(ENEMY enemies[], int n_enemies, PROJECTILE bullets[], int n_bullets, PLAYER *player){
     for(int i = 0; i < n_enemies; i++) {
         if(enemies[i].isAlive) {
 
@@ -80,6 +80,7 @@ void updateEnemiesAndProjectiles(ENEMY enemies[], int n_enemies, PROJECTILE bull
             for(int j = 0; j < n_bullets; j++) {
                 if(bullets[j].isActive) {
                     if(wasEnemyHit(&enemies[i], bullets[j])) {
+                        player->points += 100;
                         enemies[i].isAlive = false;
                         bullets[j].isActive = false;
                         break;

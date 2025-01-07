@@ -38,12 +38,12 @@ int main(void){
         handleShooting(&megaman);
         updatePlayerProjectiles(&megaman);
 
-        updateEnemiesAndProjectiles(enemies, n_enemies, megaman.projectiles, N_BULLETS);
+        updateEnemiesAndProjectiles(enemies, n_enemies, megaman.projectiles, N_BULLETS, &megaman);
 
         handlePlayerDamage(&megaman, blocks, n_blocks, enemies, n_enemies);
 
         camera.target.x = megaman.position.x - ((1200/3)/2) + 12;
-
+        
         BeginDrawing();
             ClearBackground(RAYWHITE);
 
@@ -53,7 +53,9 @@ int main(void){
                 drawPlayer(megaman);
                 drawPlayerProjectiles(megaman);
                 drawEnemies(enemies, n_enemies);
+                
             EndMode2D();
+            gui(&megaman);
             
         EndDrawing();
     }
