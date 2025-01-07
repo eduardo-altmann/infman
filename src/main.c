@@ -2,6 +2,8 @@
 #include "player.h"
 #include "enemy.h"
 #include "map.h"
+#include "menu.h"
+#include "stateHandlers.h"
 
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 600
@@ -11,6 +13,9 @@ int main(void){
     SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "INFMAN");
     SetTargetFPS(FPS);
+
+    GameState currentState;
+    currentState = MENU_STATE;
 
     BACKGROUND background;
     background = initBackground("assets/sprites/background.png", 3200, 200);
@@ -31,31 +36,24 @@ int main(void){
     parseMap("./maps/map.txt", blocks, &n_blocks, &megaman, enemies, &n_enemies);
 
     while(!WindowShouldClose()){
-        updatePlayerX(&megaman, n_blocks, blocks);
-        updatePlayerY(&megaman, n_blocks, blocks);
-        updatePlayerState(&megaman);
-        updatePlayerAnimation(&megaman);
-        handleShooting(&megaman);
-        updatePlayerProjectiles(&megaman);
+        loopUpdates(&megaman, blocks, &n_blocks, enemies, &n_enemies, &currentState, &camera);
 
-        updateEnemiesAndProjectiles(enemies, n_enemies, megaman.projectiles, N_BULLETS, &megaman);
-
-        handlePlayerDamage(&megaman, blocks, n_blocks, enemies, n_enemies);
-
-        camera.target.x = megaman.position.x - ((1200/3)/2) + 12;
         
         BeginDrawing();
             ClearBackground(RAYWHITE);
 
-            BeginMode2D(camera);
-                drawBackground(background, camera);
-                drawBlocks(blocks, n_blocks);
-                drawPlayer(megaman);
-                drawPlayerProjectiles(megaman);
-                drawEnemies(enemies, n_enemies);
-                
-            EndMode2D();
-            gui(&megaman);
+            switch (currentState){
+                case MENU_STATE:
+                    updateAndDrawMenu(&currentState);
+                    break;
+                case GAME_STATE:
+                    gameDrawUpdates(&megaman, &camera, &background, enemies, &n_enemies, blocks, &n_blocks);
+                    break;
+                case DEATH_STATE:
+                    drawDeathScreen();
+                    updateDeathScreen(&currentState);
+                    break;
+            }
             
         EndDrawing();
     }

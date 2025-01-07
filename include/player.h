@@ -19,5 +19,6 @@ bool isPlayerHitByEnemies(PLAYER *player, ENEMY enemies[], int n_enemies);
 bool playerHitSpike(PLAYER *player, BLOCK block);
 bool isPlayerSpiked(PLAYER *player, BLOCK blocks[], int n_blocks);
 bool isPlayerAboveBlock(PLAYER *player, BLOCK block);
+void handleDeath(PLAYER *player, GameState *currentState);
 
 #endif

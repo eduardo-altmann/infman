@@ -172,9 +172,10 @@ void unloadBackground(BACKGROUND *bg) {
 void gui(PLAYER *player) {
     char lifeText[16];
     snprintf(lifeText, sizeof(lifeText), "Life: %d", player->lives);
-    DrawText(lifeText, 5, 90, 30, LIGHTGRAY);
 
     char scoreText[16];
     snprintf(scoreText, sizeof(scoreText), "Score: %d", player->points);
-    DrawText(scoreText, 5, 125, 30, LIGHTGRAY);
+    DrawRectangle(5, 5, 200, 70, BLUE);
+    DrawText(lifeText, 10, 10, 30, WHITE);
+    DrawText(scoreText, 10, 45, 30, WHITE);
 }

@@ -74,11 +74,11 @@ void drawPlayer (PLAYER player){
 
 void updatePlayerX(PLAYER *player, int blockCount, BLOCK blocks[]){
     if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)){
-        player->speed.x += 0.8;
+        player->speed.x += 1;
         player->facingRight = true;
         
     } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-        player->speed.x -= 0.8;
+        player->speed.x -= 1;
         player->facingRight = false;
         
     }
@@ -228,8 +228,8 @@ bool isPlayerAboveBlock(PLAYER *player, BLOCK block) {
     float playerBottom = player->position.y + player->size.y;
     float blockTop = block.position.y;
     
-    float playerLeft = player->position.x+2;
-    float playerRight = player->position.x + player->size.x-2;
+    float playerLeft = player->position.x+8;
+    float playerRight = player->position.x + player->size.x-8;
     float blockLeft = block.position.x;
     float blockRight = block.position.x + 16;
     
@@ -267,19 +267,21 @@ void handlePlayerDamage(PLAYER *player, BLOCK blocks[], int n_blocks, ENEMY enem
     player->beingHit = false;
     
     if (isPlayerSpiked(player, blocks, n_blocks)) {
-        printf("\npisou em um spike\n");
         player->beingHit = true;
         player->damageCooldown = player->maxDamageCooldown;
         player->lives -= 1;
-        printf("Lives left: %d\n", player->lives);
         return;
     }
     
     if (isPlayerHitByEnemies(player, enemies, n_enemies)) {
-        printf("\nplayer atingido por um enemy!!!\n");
         player->beingHit = true;
         player->damageCooldown = player->maxDamageCooldown;
         player->lives -= 1;
-        printf("Lives left: %d\n", player->lives);
+    }
+}
+
+void handleDeath(PLAYER *player, GameState *currentState) {
+    if (player->lives <= 0) {
+        *currentState = DEATH_STATE;
     }
 }

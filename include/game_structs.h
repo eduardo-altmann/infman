@@ -76,4 +76,11 @@ typedef struct background {
     int numTiles;
 } BACKGROUND;
 
+typedef enum {
+    MENU_STATE,
+    GAME_STATE,
+    DEATH_STATE
+} GameState;
+
+
 #endif
