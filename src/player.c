@@ -34,8 +34,8 @@ Rectangle damageAnimation[1] = {FRAME_DAMAGE};
 Rectangle jumpAnimation[1] = {FRAME_JUMP};
 Rectangle jumpShootAnimation[1] = {FRAME_SHOOT_JUMP};
 
-void initPlayer(PLAYER *player) {
-    player->position = (Vector2){32, SCREEN_HEIGHT - 48};
+void initPlayer(PLAYER *player, Vector2 position) {
+    player->position = position;
     player->speed = (Vector2){0, 0};
     player->size = (Vector2){24, 24};
     player->spriteSheet = LoadTexture("assets/sprites/sprites.png");
@@ -53,8 +53,7 @@ void initPlayer(PLAYER *player) {
     player->maxShootCooldown = 0.3f;
     player->lives = 3;
     player->damageCooldown = 0;
-    player->maxDamageCooldown = 0.3f;
-    player->beingSpiked = false;
+    player->maxDamageCooldown = 1.0f;
 }
 
 
@@ -74,11 +73,11 @@ void drawPlayer (PLAYER player){
 
 void updatePlayerX(PLAYER *player, int blockCount, BLOCK blocks[]){
     if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)){
-        player->speed.x += 1;
+        player->speed.x += 0.8;
         player->facingRight = true;
         
     } else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-        player->speed.x -= 1;
+        player->speed.x -= 0.8;
         player->facingRight = false;
         
     }
@@ -151,7 +150,7 @@ void updatePlayerState(PLAYER *player) {
     }
     else if (player->isShooting) {
         if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) {
-            currentState = (AnimationState){runShootAnimation, 3, 0.15f};
+            currentState = (AnimationState){runShootAnimation, 3, 0.2f};
         } else {
             currentState = (AnimationState){idleShootAnimation, 1, 0.4f};
         }
@@ -160,7 +159,7 @@ void updatePlayerState(PLAYER *player) {
         currentState = (AnimationState){jumpAnimation, 1, 0.3f};
     }
     else if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) {
-        currentState = (AnimationState){runAnimation, 3, 0.15f};
+        currentState = (AnimationState){runAnimation, 3, 0.2f};
     }
     else {
         currentState = (AnimationState){idleAnimation, 2, 0.4f};
@@ -215,45 +214,71 @@ bool wasPlayerHit(PLAYER *player, ENEMY *enemy){
     
 }
 
-void causeDamage(PLAYER *player, ENEMY *enemy){
-    // se o cooldown ainda não terminou, diminui ele
-    if (player->damageCooldown > 0){
-        player->damageCooldown -= GetFrameTime();
+bool isPlayerHitByEnemies(PLAYER *player, ENEMY enemies[], int n_enemies) {
+    for (int i = 0; i < n_enemies; i++) {
+        if (enemies[i].isAlive && wasPlayerHit(player, &enemies[i])) {
+            return true;
+        }
     }
-    //se o cooldown terminou e o player ta sofrendo dano, atualiza
-    if (wasPlayerHit(player, enemy) && player->damageCooldown <= 0){
+    return false;
+}
+
+bool isPlayerAboveBlock(PLAYER *player, BLOCK block) {
+    float playerBottom = player->position.y + player->size.y;
+    float blockTop = block.position.y;
+    
+    float playerLeft = player->position.x+2;
+    float playerRight = player->position.x + player->size.x-2;
+    float blockLeft = block.position.x;
+    float blockRight = block.position.x + 16;
+    
+    bool horizontalOverlap = playerRight > blockLeft && playerLeft < blockRight;
+    
+    float tolerance = 1.0f;
+    bool verticalAlignment = playerBottom >= blockTop && 
+                           playerBottom <= blockTop + tolerance &&
+                           player->speed.y >= 0;
+    
+    return horizontalOverlap && verticalAlignment;
+}
+
+bool playerHitSpike(PLAYER *player, BLOCK block) {
+    return block.type == SPIKE_BLOCK && isPlayerAboveBlock(player, block);
+}
+
+bool isPlayerSpiked(PLAYER *player, BLOCK blocks[], int n_blocks) {
+    for (int i = 0; i < n_blocks; i++) {
+        if (playerHitSpike(player, blocks[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
+void handlePlayerDamage(PLAYER *player, BLOCK blocks[], int n_blocks, ENEMY enemies[], int n_enemies) {
+    if (player->damageCooldown > 0) {
+        player->damageCooldown -= GetFrameTime();
+        return; 
+    }
+    
+    player->beingHit = false;
+    
+    if (isPlayerSpiked(player, blocks, n_blocks)) {
+        printf("\npisou em um spike\n");
         player->beingHit = true;
         player->damageCooldown = player->maxDamageCooldown;
         player->lives -= 1;
-        printf("\nVidas: %d\n", player->lives);
+        printf("Lives left: %d\n", player->lives);
+        return;
     }
-    // se só o cooldown acabou não ta sofrendo dano
-    if (player->damageCooldown <= 0){
-        player->beingHit = false;
-    }
-}
-
-void playerSpiked(PLAYER *player){
-    // se o cooldown ainda não terminou, diminui ele
-    if (player->damageCooldown > 0){
-        player->damageCooldown -= GetFrameTime();
-    }
-    //se o cooldown terminou e o player ta sofrendo dano, atualiza
-    if (player->beingSpiked && player->damageCooldown <= 0){
+    
+    if (isPlayerHitByEnemies(player, enemies, n_enemies)) {
+        printf("\nplayer atingido por um enemy!!!\n");
         player->beingHit = true;
         player->damageCooldown = player->maxDamageCooldown;
         player->lives -= 1;
-        printf("\nVidas: %d\n", player->lives);
-    }
-    // se só o cooldown acabou não ta sofrendo dano
-    if (player->damageCooldown <= 0){
-        player->beingHit = false;
-        player->beingSpiked = false;
-    }
-}
-
-void causeDamageByEnemies(PLAYER *player, ENEMY enemies[], int n_enemies){
-    for (int i = 0; i < n_enemies; i++){
-        causeDamage(player, &enemies[i]);
+        printf("Lives left: %d\n", player->lives);
     }
 }

@@ -33,7 +33,6 @@ typedef struct player{
     float damageCooldown;
     float maxDamageCooldown;
     bool beingHit;
-    bool beingSpiked;
 } PLAYER;
 
 typedef struct enemy{
@@ -69,5 +68,11 @@ typedef struct AnimationState {
     int frameCount;
     float frameSpeed;
 } AnimationState;
+
+typedef struct background {
+    Texture2D texture;
+    Vector2 position;
+    int numTiles;
+} BACKGROUND;
 
 #endif

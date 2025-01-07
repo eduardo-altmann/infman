@@ -7,8 +7,9 @@
 Rectangle animation[2] = {FRAME_0, FRAME_1};
 
 void initEnemy(ENEMY *enemy, Vector2 position){
-    enemy->position = position;
-    enemy->speed = 2.0;
+    enemy->position.x = position.x;
+    enemy->position.y = position.y - 10;
+    enemy->speed = 1.0;
     enemy->size = (Vector2){16, 24};
     enemy->spriteSheet = LoadTexture("assets/sprites/enemies.png");
     enemy->facingRight = false;
@@ -18,7 +19,7 @@ void initEnemy(ENEMY *enemy, Vector2 position){
     enemy->frameTime = 0.0f;
     enemy->frameSpeed = 0.1f;
     enemy->isAlive = true;
-    enemy->patrolDistance = 120;
+    enemy->patrolDistance = 96;
     enemy->initialX = position.x;
 }
 
@@ -72,6 +73,10 @@ bool wasEnemyHit(ENEMY *enemy, PROJECTILE bullet){
 void updateEnemiesAndProjectiles(ENEMY enemies[], int n_enemies, PROJECTILE bullets[], int n_bullets){
     for(int i = 0; i < n_enemies; i++) {
         if(enemies[i].isAlive) {
+
+            updateEnemy(&enemies[i]);
+            updateEnemyAnimation(&enemies[i]);
+            
             for(int j = 0; j < n_bullets; j++) {
                 if(bullets[j].isActive) {
                     if(wasEnemyHit(&enemies[i], bullets[j])) {
@@ -82,5 +87,11 @@ void updateEnemiesAndProjectiles(ENEMY enemies[], int n_enemies, PROJECTILE bull
                 }
             }
         }
+    }
+}
+
+void drawEnemies(ENEMY enemies[], int n_enemies){
+    for (int i = 0; i < n_enemies; i++){
+        drawEnemy(enemies[i]);
     }
 }

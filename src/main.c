@@ -12,56 +12,52 @@ int main(void){
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "INFMAN");
     SetTargetFPS(FPS);
 
+    BACKGROUND background;
+    background = initBackground("assets/sprites/background.png", 3200, 200);
+
     Camera2D camera = { 0 };
     camera.target = (Vector2){ 0, 0 };
-    camera.offset = (Vector2){ 0, (-3.75 * 600) +600};
+    camera.offset = (Vector2){ 0, (-3 * 600) +600};
     camera.rotation = 0.0f;
-    camera.zoom = 3.75f;
+    camera.zoom = 3;
 
     PLAYER megaman;
-    //Rectangle floor = {0, SCREEN_HEIGHT-16, SCREEN_WIDTH, 16};
+    ENEMY enemies[5];
+    BLOCK blocks[160];
 
-    ENEMY enemies[1];
+    int n_enemies = 0;
+    int n_blocks = 0;
 
-    BLOCK normalBlocks[51];
-    BLOCK obstacle;
+    parseMap("./maps/map.txt", blocks, &n_blocks, &megaman, enemies, &n_enemies);
 
-    initPlayer(&megaman);
-    initEnemy(&enemies[0], (Vector2){600, SCREEN_HEIGHT-48});
-    for (int i = 0; i < 50; i++){
-        initBlock(&normalBlocks[i], (Vector2){i*16, SCREEN_HEIGHT-16}, NORMAL_BLOCK);
-    }
-    initBlock(&obstacle, (Vector2){160, SCREEN_HEIGHT-32}, SPIKE_BLOCK);
-    normalBlocks[50] = obstacle;
     while(!WindowShouldClose()){
-        updatePlayerX(&megaman, 51, normalBlocks);
-        updatePlayerY(&megaman, 51, normalBlocks);
+        updatePlayerX(&megaman, n_blocks, blocks);
+        updatePlayerY(&megaman, n_blocks, blocks);
         updatePlayerState(&megaman);
         updatePlayerAnimation(&megaman);
         handleShooting(&megaman);
         updatePlayerProjectiles(&megaman);
 
-        updateEnemy(&enemies[0]);
-        updateEnemyAnimation(&enemies[0]);
-        updateEnemiesAndProjectiles(enemies, 1, megaman.projectiles, N_BULLETS);
+        updateEnemiesAndProjectiles(enemies, n_enemies, megaman.projectiles, N_BULLETS);
 
-        causeDamageByEnemies(&megaman, enemies, 1);
-        playerSpiked(&megaman);
+        handlePlayerDamage(&megaman, blocks, n_blocks, enemies, n_enemies);
 
-        camera.target.x = megaman.position.x - ((1200/3.75)/2) + 12;
+        camera.target.x = megaman.position.x - ((1200/3)/2) + 12;
 
         BeginDrawing();
             ClearBackground(RAYWHITE);
 
             BeginMode2D(camera);
-                drawBlocks(normalBlocks, 51);
+                drawBackground(background, camera);
+                drawBlocks(blocks, n_blocks);
                 drawPlayer(megaman);
                 drawPlayerProjectiles(megaman);
-                drawEnemy(enemies[0]);
+                drawEnemies(enemies, n_enemies);
             EndMode2D();
             
         EndDrawing();
     }
+    unloadBackground(&background);
 
     return 0;
 }

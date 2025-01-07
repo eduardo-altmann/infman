@@ -3,7 +3,7 @@
 
 #include "game_structs.h"
 
-void initPlayer(PLAYER *player);
+void initPlayer(PLAYER *player, Vector2 position);
 void drawPlayer(PLAYER player);
 void updatePlayerX(PLAYER *player, int blockCount, BLOCK blocks[]);
 void updatePlayerY(PLAYER *player, int blockCount, BLOCK blocks[]);
@@ -14,8 +14,10 @@ void handleShooting(PLAYER *player);
 void updatePlayerProjectiles(PLAYER *player);
 void drawPlayerProjectiles(PLAYER player);
 bool wasPlayerHit(PLAYER *player, ENEMY *enemy);
-void causeDamage(PLAYER *player, ENEMY *enemy);
-void causeDamageByEnemies(PLAYER *player, ENEMY enemies[], int n_enemies);
-void playerSpiked(PLAYER *player);
+void handlePlayerDamage(PLAYER *player, BLOCK blocks[], int n_blocks, ENEMY enemies[], int n_enemies);
+bool isPlayerHitByEnemies(PLAYER *player, ENEMY enemies[], int n_enemies);
+bool playerHitSpike(PLAYER *player, BLOCK block);
+bool isPlayerSpiked(PLAYER *player, BLOCK blocks[], int n_blocks);
+bool isPlayerAboveBlock(PLAYER *player, BLOCK block);
 
 #endif

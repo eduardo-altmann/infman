@@ -1,5 +1,8 @@
 #include "map.h"
+#include "enemy.h"
+#include "player.h"
 #include <stdio.h>
+#include <math.h>
 
 void initBlock(BLOCK *block, Vector2 position, BlockType type){
     block->position = position;
@@ -22,17 +25,10 @@ void drawBlock(BLOCK block){
      DrawTexturePro(block.texture, source, dest, (Vector2){0,0}, 0.0f, WHITE);
 }
 
-bool checkBlockCollision(BLOCK block, PLAYER *player){
+bool checkBlockCollision(BLOCK block, PLAYER *player) {
     Rectangle playerHitbox = {player->position.x, player->position.y, player->size.x, player->size.y};
-
     Rectangle blockHitbox = {block.position.x, block.position.y, 16, 16};
-
-    bool collided = CheckCollisionRecs(playerHitbox, blockHitbox);
-
-    if (collided && block.type == SPIKE_BLOCK) player->beingSpiked = true;
-    else player->beingSpiked = false;
-
-    return collided;
+    return CheckCollisionRecs(playerHitbox, blockHitbox);
 }
 
 void handleBlockCollision(PLAYER *player, BLOCK block) {
@@ -73,4 +69,102 @@ void drawBlocks(BLOCK blocks[], int n_blocks){
     for (int i = 0; i < n_blocks; i++){
         drawBlock(blocks[i]);
     }
+}
+
+void parseMap(char fileName[], BLOCK blocks[], int *n_blocks, PLAYER *player, ENEMY enemies[], int *n_enemies) {
+    FILE *arq = fopen(fileName, "r");
+    if (!arq) {
+        printf("erro!!!");
+        return;
+    }
+
+    int startY = GetScreenHeight() - (12 * 16);
+    int row = 0;
+
+    char line[201]; 
+    while (fgets(line, sizeof(line), arq)) {
+        int col = 0;
+        while (line[col] != '\0' && line[col] != '\n') {
+            Vector2 position = (Vector2){col * 16, startY + (row * 16)};
+            
+            switch (line[col]) {
+                case 'B':
+                    initBlock(&blocks[*n_blocks], position, NORMAL_BLOCK);
+                    (*n_blocks)++;
+                    break;
+
+                case 'O':
+                    initBlock(&blocks[*n_blocks], position, SPIKE_BLOCK);
+                    (*n_blocks)++;
+                    break;
+
+                case 'M':
+                    initEnemy(&enemies[*n_enemies], position);
+                    (*n_enemies)++;
+                    break;
+
+                case 'P':
+                    position = (Vector2){position.x, position.y-8};
+                    initPlayer(player, position);
+                    break;
+
+                case ' ':
+                    break;
+
+                default:
+                    printf("Caractere desonhecido!\n");
+                    break;
+            }
+            col++;
+        }
+        row++;
+    }
+
+    fclose(arq);
+}
+
+BACKGROUND initBackground(char filename[], float levelWidth, float screenHeight) {
+    BACKGROUND bg = { 0 };
+    bg.texture = LoadTexture(filename);
+    
+    bg.numTiles = (int)ceil(levelWidth / bg.texture.width) + 1;
+    bg.position = (Vector2){ 0, 0};
+    return bg;
+}
+
+void drawBackground(BACKGROUND bg, Camera2D camera) {
+    float startX = (camera.target.x - 224) - (camera.offset.x / camera.zoom);
+    
+    int firstTile = (int)(startX / bg.texture.width);
+    
+    for (int i = 0; i < bg.numTiles; i++) {
+        float xPos = (firstTile + i) * bg.texture.width;
+        
+        Rectangle source = {
+            0, 
+            0, 
+            bg.texture.width, 
+            bg.texture.height
+        };
+        
+        Rectangle dest = {
+            xPos,
+            GetScreenHeight()-200,
+            bg.texture.width,
+            bg.texture.height
+        };
+        
+        DrawTexturePro(
+            bg.texture,
+            source,
+            dest,
+            (Vector2){ 0, 0 },
+            0.0f,
+            WHITE
+        );
+    }
+}
+
+void unloadBackground(BACKGROUND *bg) {
+    UnloadTexture(bg->texture);
 }
