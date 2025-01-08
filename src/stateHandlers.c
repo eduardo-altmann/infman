@@ -6,6 +6,11 @@
 
 
 void loopUpdates(PLAYER *player, BLOCK blocks[], int *n_blocks, ENEMY enemies[], int *n_enemies, GameState *currentState, Camera2D *camera){
+    if (*currentState == DEATH_STATE) {
+            updateDeathScreen(currentState, player, enemies, n_enemies, blocks, n_blocks);
+            return;
+        }
+        
     updatePlayerX(player, *n_blocks, blocks);
     updatePlayerY(player, *n_blocks, blocks);
     updatePlayerState(player);
@@ -31,4 +36,24 @@ void gameDrawUpdates(PLAYER *player, Camera2D *camera, BACKGROUND *bg, ENEMY ene
                         
     EndMode2D();
     gui(player);
+}
+
+void resetGameState(PLAYER *player, ENEMY enemies[], int *n_enemies, BLOCK blocks[], int *n_blocks) {
+    *n_enemies = 0;
+    
+    *n_blocks = 0;
+    
+    player->lives = 3;
+    player->points = 0;
+    player->beingHit = false;
+    player->damageCooldown = 0;
+    player->isShooting = false;
+    player->shootCooldown = 0;
+    player->position = (Vector2){0, 0};
+    player->speed = (Vector2){0, 0};
+    player->initialized = false;
+    
+    for (int i = 0; i < N_BULLETS; i++) {
+        player->projectiles[i].isActive = false;
+    }
 }

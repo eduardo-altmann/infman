@@ -34,6 +34,7 @@ typedef struct player{
     float maxDamageCooldown;
     bool beingHit;
     int points;
+    bool initialized;
 } PLAYER;
 
 typedef struct enemy{

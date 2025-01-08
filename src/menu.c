@@ -1,6 +1,8 @@
 #include "raylib.h"
 #include "game_structs.h"
 #include <stdio.h>
+#include "map.h"
+#include "stateHandlers.h"
 
 void drawMenu() {
 
@@ -98,7 +100,7 @@ void drawMenu() {
 
 }
 
-void updateAndDrawMenu(GameState *currentState) {
+void updateAndDrawMenu(GameState *currentState, char fileName[], BLOCK blocks[], int *n_blocks, PLAYER *player, ENEMY enemies[], int *n_enemies) {
     Vector2 mouse = GetMousePosition();
     
     Rectangle play = {
@@ -123,7 +125,11 @@ void updateAndDrawMenu(GameState *currentState) {
     };
 
     if (CheckCollisionPointRec(mouse, play) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        resetGameState(player, enemies, n_enemies, blocks, n_blocks);
+        parseMap(fileName, blocks, n_blocks, player, enemies, n_enemies);
         *currentState = GAME_STATE;
+        
+
     }
     
     if (CheckCollisionPointRec(mouse, quit) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -156,8 +162,10 @@ void drawDeathScreen() {
         30, WHITE);
 }
 
-void updateDeathScreen(GameState *currentState) {
+void updateDeathScreen(GameState *currentState, PLAYER *player, ENEMY enemies[], int *n_enemies, BLOCK blocks[], int *n_blocks) {
     if (IsKeyPressed(KEY_ENTER)) {
+        resetGameState(player, enemies, n_enemies, blocks, n_blocks);
+
         *currentState = MENU_STATE;
     }
 }

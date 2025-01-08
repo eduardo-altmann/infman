@@ -55,6 +55,7 @@ void initPlayer(PLAYER *player, Vector2 position) {
     player->damageCooldown = 0;
     player->maxDamageCooldown = 1.0f;
     player->points = 0;
+    player->initialized = true;
 }
 
 
@@ -259,17 +260,29 @@ bool isPlayerSpiked(PLAYER *player, BLOCK blocks[], int n_blocks) {
 
 
 void handlePlayerDamage(PLAYER *player, BLOCK blocks[], int n_blocks, ENEMY enemies[], int n_enemies) {
+    if (!player->initialized) return;
+
+    if (player->lives <= 0) return;
     if (player->damageCooldown > 0) {
         player->damageCooldown -= GetFrameTime();
         return; 
     }
     
     player->beingHit = false;
+
+    if (player->position.y > GetScreenHeight()) {
+        player->beingHit = true;
+        player->lives = 0;
+        printf("\nFELL OFF SCREEN!\n");
+        return;
+    }
+
     
     if (isPlayerSpiked(player, blocks, n_blocks)) {
         player->beingHit = true;
         player->damageCooldown = player->maxDamageCooldown;
         player->lives -= 1;
+        printf("\nSPIKED!\n");
         return;
     }
     
@@ -277,11 +290,21 @@ void handlePlayerDamage(PLAYER *player, BLOCK blocks[], int n_blocks, ENEMY enem
         player->beingHit = true;
         player->damageCooldown = player->maxDamageCooldown;
         player->lives -= 1;
+        printf("\nENEMIED!\n");
+
     }
 }
 
 void handleDeath(PLAYER *player, GameState *currentState) {
     if (player->lives <= 0) {
+        player->beingHit = false;
+        player->damageCooldown = 0;
+        player->isShooting = false;
+        
+        for (int i = 0; i < N_BULLETS; i++) {
+            player->projectiles[i].isActive = false;
+        }
+        
         *currentState = DEATH_STATE;
     }
 }

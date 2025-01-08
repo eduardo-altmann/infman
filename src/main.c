@@ -27,13 +27,12 @@ int main(void){
     camera.zoom = 3;
 
     PLAYER megaman;
+    megaman.initialized = false;
     ENEMY enemies[5];
     BLOCK blocks[160];
 
     int n_enemies = 0;
     int n_blocks = 0;
-
-    parseMap("./maps/map.txt", blocks, &n_blocks, &megaman, enemies, &n_enemies);
 
     while(!WindowShouldClose()){
         loopUpdates(&megaman, blocks, &n_blocks, enemies, &n_enemies, &currentState, &camera);
@@ -42,16 +41,15 @@ int main(void){
         BeginDrawing();
             ClearBackground(RAYWHITE);
 
-            switch (currentState){
+            switch (currentState) {
                 case MENU_STATE:
-                    updateAndDrawMenu(&currentState);
+                    updateAndDrawMenu(&currentState, "./maps/map.txt", blocks, &n_blocks, &megaman, enemies, &n_enemies);
                     break;
                 case GAME_STATE:
                     gameDrawUpdates(&megaman, &camera, &background, enemies, &n_enemies, blocks, &n_blocks);
                     break;
                 case DEATH_STATE:
                     drawDeathScreen();
-                    updateDeathScreen(&currentState);
                     break;
             }
             
