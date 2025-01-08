@@ -24,13 +24,14 @@
 
 #define FRAME_JUMP (Rectangle){120, 0, 32, 32}
 #define FRAME_SHOOT_JUMP (Rectangle){310, 0, 32, 32}
-#define FRAME_DAMAGE (Rectangle){152, 0, 32, 32}
+#define FRAME_DAMAGE_0 (Rectangle){152, 0, 32, 32}
+#define FRAME_DAMAGE_1 (Rectangle) {344, 0, 32, 32}
 
 Rectangle idleAnimation[2] = {FRAME_IDLE_0, FRAME_IDLE_1};
 Rectangle runAnimation[3] = {FRAME_RUN_0, FRAME_RUN_1, FRAME_RUN_2};
 Rectangle idleShootAnimation[1] = {FRAME_SHOOT_IDLE};
 Rectangle runShootAnimation[3] = {FRAME_SHOOT_RUN_0, FRAME_SHOOT_RUN_1, FRAME_SHOOT_RUN_2};
-Rectangle damageAnimation[1] = {FRAME_DAMAGE};
+Rectangle damageAnimation[2] = {FRAME_DAMAGE_0, FRAME_DAMAGE_1};
 Rectangle jumpAnimation[1] = {FRAME_JUMP};
 Rectangle jumpShootAnimation[1] = {FRAME_SHOOT_JUMP};
 
@@ -145,7 +146,7 @@ void updatePlayerState(PLAYER *player) {
     AnimationState currentState;
     
     if (player->beingHit) {
-        currentState = (AnimationState){damageAnimation, 1, 0.3f};
+        currentState = (AnimationState){damageAnimation, 2, 0.1f};
     }
     else if (player->isShooting && player->speed.y != 0) {
         currentState = (AnimationState){jumpShootAnimation, 1, 0.3f};
