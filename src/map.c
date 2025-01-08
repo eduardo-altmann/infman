@@ -10,6 +10,7 @@ void initBlock(BLOCK *block, Vector2 position, BlockType type){
     block->type = type;
     if (type == NORMAL_BLOCK) block->texture = LoadTexture("assets/sprites/tile1.png");
     else if(type == SPIKE_BLOCK) block->texture = LoadTexture("assets/sprites/spike.png");
+    else if(type == END_BLOCK) block->texture = LoadTexture("assets/sprites/end.png");
 }
 
 void drawBlock(BLOCK block){
@@ -88,6 +89,9 @@ void parseMap(char fileName[], BLOCK blocks[], int *n_blocks, PLAYER *player, EN
             Vector2 position = (Vector2){col * 16, startY + (row * 16)};
             
             switch (line[col]) {
+                case ' ':
+                    break;
+
                 case 'B':
                     initBlock(&blocks[*n_blocks], position, NORMAL_BLOCK);
                     (*n_blocks)++;
@@ -107,10 +111,11 @@ void parseMap(char fileName[], BLOCK blocks[], int *n_blocks, PLAYER *player, EN
                     position = (Vector2){position.x, position.y-8};
                     initPlayer(player, position);
                     break;
-
-                case ' ':
+                case 'E':
+                    initBlock(&blocks[*n_blocks], position, END_BLOCK);
+                    (*n_blocks)++;
                     break;
-
+                
                 default:
                     printf("Caractere desonhecido!\n");
                     break;

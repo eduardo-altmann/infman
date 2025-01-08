@@ -3,14 +3,19 @@
 #include "enemy.h"
 #include "map.h"
 #include "menu.h"
+#include "completeLevel.h"
+#include <stdio.h>
 
 
-void loopUpdates(PLAYER *player, BLOCK blocks[], int *n_blocks, ENEMY enemies[], int *n_enemies, GameState *currentState, Camera2D *camera, JOGADOR top5[]){
+void loopUpdates(PLAYER *player, BLOCK blocks[], int *n_blocks, ENEMY enemies[], int *n_enemies, GameState *currentState, Camera2D *camera, JOGADOR top5[], int lowerIndex, char *text, int *letterCount, char *fileName){
     if (*currentState == DEATH_STATE) {
         updateDeathScreen(currentState, player, enemies, n_enemies, blocks, n_blocks);
         return;
     } else if(*currentState == SCORE_STATE){
         updateAndDrawScoreScreen(currentState, top5);
+        return;
+    } else if(*currentState == LEVEL_COMPLETE_STATE){
+        updateAndDrawCompleteLevelScreen(currentState, player, enemies, n_enemies, blocks, n_blocks, top5, lowerIndex, text, letterCount, fileName);
         return;
     }
         
@@ -25,6 +30,7 @@ void loopUpdates(PLAYER *player, BLOCK blocks[], int *n_blocks, ENEMY enemies[],
 
     handlePlayerDamage(player, blocks, *n_blocks, enemies, *n_enemies);
     handleDeath(player, currentState);
+    handleEnd(player, currentState, blocks, n_blocks);
 
     camera->target.x = player->position.x - ((1200/3)/2) + 12;
 }

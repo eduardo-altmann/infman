@@ -5,6 +5,7 @@
 #include "menu.h"
 #include "stateHandlers.h"
 #include "top5.h"
+#include "completeLevel.h"
 
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 600
@@ -27,17 +28,26 @@ int main(void){
     camera.rotation = 0.0f;
     camera.zoom = 3;
 
+    char text[45 + 1] = "\0";
+    int letterCount = 0;
+
     PLAYER megaman;
     megaman.initialized = false;
     ENEMY enemies[5];
-    BLOCK blocks[160];
+    BLOCK blocks[200];
+
     JOGADOR top5[5];
+    char *fileName =  "./save/top5.bin";
+    le_arquivo(fileName, top5);
+    int lowerIndex = retornaMenorIndice(top5);
+
+    char *mapFile =  "./maps/map.txt";
 
     int n_enemies = 0;
     int n_blocks = 0;
 
     while(!WindowShouldClose()){
-        loopUpdates(&megaman, blocks, &n_blocks, enemies, &n_enemies, &currentState, &camera, top5);
+        loopUpdates(&megaman, blocks, &n_blocks, enemies, &n_enemies, &currentState, &camera, top5, lowerIndex, text, &letterCount, fileName);
 
         
         BeginDrawing();
@@ -45,7 +55,7 @@ int main(void){
 
             switch (currentState) {
                 case MENU_STATE:
-                    updateAndDrawMenu(&currentState, "./maps/map.txt", blocks, &n_blocks, &megaman, enemies, &n_enemies, "./save/top5.bin", top5);
+                    updateAndDrawMenu(&currentState, mapFile, blocks, &n_blocks, &megaman, enemies, &n_enemies);
                     break;
                 case GAME_STATE:
                     gameDrawUpdates(&megaman, &camera, &background, enemies, &n_enemies, blocks, &n_blocks);
@@ -55,6 +65,9 @@ int main(void){
                     break;
                 case SCORE_STATE:
                     updateAndDrawScoreScreen(&currentState, top5);
+                    break;
+                case LEVEL_COMPLETE_STATE:
+                    updateAndDrawCompleteLevelScreen(&currentState, &megaman, enemies, &n_enemies, blocks, &n_blocks, top5, lowerIndex, text, &letterCount, fileName);
                     break;
             }
             

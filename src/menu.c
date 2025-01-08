@@ -101,7 +101,7 @@ void drawMenu() {
 
 }
 
-void updateAndDrawMenu(GameState *currentState, char fileName[], BLOCK blocks[], int *n_blocks, PLAYER *player, ENEMY enemies[], int *n_enemies, char *file_name, JOGADOR top5[]) {
+void updateAndDrawMenu(GameState *currentState, char fileName[], BLOCK blocks[], int *n_blocks, PLAYER *player, ENEMY enemies[], int *n_enemies) {
     Vector2 mouse = GetMousePosition();
     
     Rectangle play = {
@@ -133,7 +133,7 @@ void updateAndDrawMenu(GameState *currentState, char fileName[], BLOCK blocks[],
     }
 
     if (CheckCollisionPointRec(mouse, scoreBoard) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        le_arquivo(file_name, top5);
+        
         *currentState = SCORE_STATE;
         
     }

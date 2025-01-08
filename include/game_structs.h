@@ -55,7 +55,8 @@ typedef struct enemy{
 
 typedef enum {
     NORMAL_BLOCK,
-    SPIKE_BLOCK
+    SPIKE_BLOCK,
+    END_BLOCK
 } BlockType;
 
 typedef struct block {
@@ -81,7 +82,8 @@ typedef enum {
     MENU_STATE,
     GAME_STATE,
     DEATH_STATE,
-    SCORE_STATE
+    SCORE_STATE,
+    LEVEL_COMPLETE_STATE
 } GameState;
 
 #define MAXSCORES 5 

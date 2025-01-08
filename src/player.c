@@ -308,3 +308,34 @@ void handleDeath(PLAYER *player, GameState *currentState) {
         *currentState = DEATH_STATE;
     }
 }
+
+bool playerHitEndBlock(PLAYER *player, BLOCK block){
+    bool collided = block.type == END_BLOCK && isPlayerAboveBlock(player, block);
+    
+    return collided;
+
+}
+
+bool isPlayerAtEnd(PLAYER *player, BLOCK blocks[], int n_blocks) {
+    for (int i = 0; i < n_blocks; i++) {
+        if (playerHitEndBlock(player, blocks[i])) {
+
+            return true;
+        }
+    }
+    return false;
+}
+
+void handleEnd(PLAYER *player, GameState *currentState, BLOCK blocks[], int *n_blocks) {
+    if (isPlayerAtEnd(player, blocks, *n_blocks)) {
+        player->beingHit = false;
+        player->damageCooldown = 0;
+        player->isShooting = false;
+        
+        for (int i = 0; i < N_BULLETS; i++) {
+            player->projectiles[i].isActive = false;
+        }
+        
+        *currentState = LEVEL_COMPLETE_STATE;
+    }
+}

@@ -13,4 +13,8 @@ void imprime_top5(JOGADOR top5[]);
 
 void reorganizaArray(JOGADOR top5[]);
 
+int retornaMenorIndice(JOGADOR top5[]);
+
+void trocaJogadorCompleto(JOGADOR *novoj, int menorIndice, JOGADOR top5[], char *fileName);
+
 #endif

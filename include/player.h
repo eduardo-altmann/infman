@@ -20,5 +20,7 @@ bool playerHitSpike(PLAYER *player, BLOCK block);
 bool isPlayerSpiked(PLAYER *player, BLOCK blocks[], int n_blocks);
 bool isPlayerAboveBlock(PLAYER *player, BLOCK block);
 void handleDeath(PLAYER *player, GameState *currentState);
-
+bool playerHitEndBlock(PLAYER *player, BLOCK block);
+bool isPlayerAtEnd(PLAYER *player, BLOCK blocks[], int n_blocks);
+void handleEnd(PLAYER *player, GameState *currentState, BLOCK blocks[], int *n_blocks);
 #endif

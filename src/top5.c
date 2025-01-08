@@ -39,6 +39,7 @@ bool salva_arquivo(char nome_arq[], JOGADOR top5[MAXSCORES]){
 
 void troca_info_array(JOGADOR top5[], JOGADOR novoj, int posicao){
     top5[posicao] = novoj;
+    printf("\nPOSICAO TROCADA COM SUCESSO\n");
 }
 
 void imprime_top5(JOGADOR top5[]){
@@ -64,4 +65,22 @@ void reorganizaArray(JOGADOR top5[]) {
             top5[maxIdx] = temp;
         }
     }
+    printf("\nARRAY REORGANIZADO COM SUCESSO\n");
+
+}
+
+int retornaMenorIndice(JOGADOR top5[]){
+    int menor = 0;
+    for (int i = 0; i < 5; i++){
+        if (top5[i].pontos < top5[menor].pontos) menor = i;
+    }
+    printf("\nMENOR INDICE RETORNADO COM SUCESSO\n");
+    return menor;
+}
+
+void trocaJogadorCompleto(JOGADOR *novoj, int menorIndice, JOGADOR top5[], char *fileName){
+    troca_info_array(top5, *novoj, menorIndice);
+    reorganizaArray(top5);
+    salva_arquivo(fileName, top5);
+    printf("\nTROCA COMPLETA REALIZADA COM SUCESSO\n");
 }
