@@ -6,6 +6,7 @@ CFLAGS = -Wall -Iinclude -O2
 SRC_DIR = src
 INCLUDE_DIR = include
 ASSETS_DIR = assets
+SAVE_DIR = save
 BUILD_DIR = build
 
 # Files
@@ -17,8 +18,9 @@ TARGET = $(BUILD_DIR)/game
 all: $(TARGET)
 
 # Build target
-$(TARGET): $(OBJ_FILES) | $(BUILD_DIR)
+$(TARGET): $(OBJ_FILES) | $(BUILD_DIR) $(SAVE_DIR)
 	$(CC) $(OBJ_FILES) -o $@ -lraylib -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL
+	cp $(SAVE_DIR)/top5.bin $(BUILD_DIR)/top5.bin
 
 # Object files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "map.h"
 #include "stateHandlers.h"
+#include "top5.h"
 
 void drawMenu() {
 
@@ -100,7 +101,7 @@ void drawMenu() {
 
 }
 
-void updateAndDrawMenu(GameState *currentState, char fileName[], BLOCK blocks[], int *n_blocks, PLAYER *player, ENEMY enemies[], int *n_enemies) {
+void updateAndDrawMenu(GameState *currentState, char fileName[], BLOCK blocks[], int *n_blocks, PLAYER *player, ENEMY enemies[], int *n_enemies, char *file_name, JOGADOR top5[]) {
     Vector2 mouse = GetMousePosition();
     
     Rectangle play = {
@@ -129,7 +130,12 @@ void updateAndDrawMenu(GameState *currentState, char fileName[], BLOCK blocks[],
         parseMap(fileName, blocks, n_blocks, player, enemies, n_enemies);
         *currentState = GAME_STATE;
         
+    }
 
+    if (CheckCollisionPointRec(mouse, scoreBoard) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        le_arquivo(file_name, top5);
+        *currentState = SCORE_STATE;
+        
     }
     
     if (CheckCollisionPointRec(mouse, quit) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -168,4 +174,52 @@ void updateDeathScreen(GameState *currentState, PLAYER *player, ENEMY enemies[],
 
         *currentState = MENU_STATE;
     }
+}
+
+void drawScoreBoard(JOGADOR top5[]){
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), DARKBLUE);
+
+    const char *title = "Score board";
+    const char *retry = "Press ENTER to menu";
+    const char *menu = "Press ESC to leave";
+
+    for (int i = 0; i < 5; i++){
+        char *name = top5[i].nome;
+
+        int points = top5[i].pontos;
+        char pointsText[12];
+        sprintf(pointsText, "%d", points);
+
+        DrawText(name, 
+        280,
+        GetScreenHeight()/2 - 180 + (i*60),
+        50, YELLOW);
+
+        DrawText(pointsText, 
+        800,
+        GetScreenHeight()/2 - 180 + (i*60),
+        50, YELLOW);
+    }
+
+    DrawText(title, 
+        GetScreenWidth()/2 - MeasureText(title, 70)/2,
+        GetScreenHeight()/2 - 290,
+        70, WHITE);
+        
+    DrawText(retry,
+        GetScreenWidth()/2 - MeasureText(retry, 30)/2,
+        GetScreenHeight()/2 +210,
+        30, WHITE);
+        
+    DrawText(menu,
+        GetScreenWidth()/2 - MeasureText(menu, 30)/2,
+        GetScreenHeight()/2 + 260,
+        30, WHITE);
+}
+
+void updateAndDrawScoreScreen(GameState *currentState, JOGADOR top5[]) {
+    if (IsKeyPressed(KEY_ENTER)) {
+        *currentState = MENU_STATE;
+    }
+    drawScoreBoard(top5);
 }

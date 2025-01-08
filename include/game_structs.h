@@ -80,8 +80,15 @@ typedef struct background {
 typedef enum {
     MENU_STATE,
     GAME_STATE,
-    DEATH_STATE
+    DEATH_STATE,
+    SCORE_STATE
 } GameState;
 
+#define MAXSCORES 5 
+
+typedef struct{
+    char nome[45];
+    int pontos;
+}JOGADOR;
 
 #endif

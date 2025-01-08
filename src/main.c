@@ -4,6 +4,7 @@
 #include "map.h"
 #include "menu.h"
 #include "stateHandlers.h"
+#include "top5.h"
 
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 600
@@ -30,12 +31,13 @@ int main(void){
     megaman.initialized = false;
     ENEMY enemies[5];
     BLOCK blocks[160];
+    JOGADOR top5[5];
 
     int n_enemies = 0;
     int n_blocks = 0;
 
     while(!WindowShouldClose()){
-        loopUpdates(&megaman, blocks, &n_blocks, enemies, &n_enemies, &currentState, &camera);
+        loopUpdates(&megaman, blocks, &n_blocks, enemies, &n_enemies, &currentState, &camera, top5);
 
         
         BeginDrawing();
@@ -43,13 +45,16 @@ int main(void){
 
             switch (currentState) {
                 case MENU_STATE:
-                    updateAndDrawMenu(&currentState, "./maps/map.txt", blocks, &n_blocks, &megaman, enemies, &n_enemies);
+                    updateAndDrawMenu(&currentState, "./maps/map.txt", blocks, &n_blocks, &megaman, enemies, &n_enemies, "./save/top5.bin", top5);
                     break;
                 case GAME_STATE:
                     gameDrawUpdates(&megaman, &camera, &background, enemies, &n_enemies, blocks, &n_blocks);
                     break;
                 case DEATH_STATE:
                     drawDeathScreen();
+                    break;
+                case SCORE_STATE:
+                    updateAndDrawScoreScreen(&currentState, top5);
                     break;
             }
             

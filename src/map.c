@@ -175,7 +175,7 @@ void gui(PLAYER *player) {
 
     char scoreText[16];
     snprintf(scoreText, sizeof(scoreText), "Score: %d", player->points);
-    DrawRectangle(5, 5, 200, 70, BLUE);
-    DrawText(lifeText, 10, 10, 30, WHITE);
-    DrawText(scoreText, 10, 45, 30, WHITE);
+    DrawRectangle(5, 5, 200, 70, DARKBLUE);
+    DrawText(lifeText, 10, 10, 30, YELLOW);
+    DrawText(scoreText, 10, 45, 30, YELLOW);
 }

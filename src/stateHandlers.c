@@ -5,11 +5,14 @@
 #include "menu.h"
 
 
-void loopUpdates(PLAYER *player, BLOCK blocks[], int *n_blocks, ENEMY enemies[], int *n_enemies, GameState *currentState, Camera2D *camera){
+void loopUpdates(PLAYER *player, BLOCK blocks[], int *n_blocks, ENEMY enemies[], int *n_enemies, GameState *currentState, Camera2D *camera, JOGADOR top5[]){
     if (*currentState == DEATH_STATE) {
-            updateDeathScreen(currentState, player, enemies, n_enemies, blocks, n_blocks);
-            return;
-        }
+        updateDeathScreen(currentState, player, enemies, n_enemies, blocks, n_blocks);
+        return;
+    } else if(*currentState == SCORE_STATE){
+        updateAndDrawScoreScreen(currentState, top5);
+        return;
+    }
         
     updatePlayerX(player, *n_blocks, blocks);
     updatePlayerY(player, *n_blocks, blocks);
