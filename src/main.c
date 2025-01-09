@@ -33,15 +33,15 @@ int main(void){
 
     PLAYER megaman;
     megaman.initialized = false;
-    ENEMY enemies[5];
-    BLOCK blocks[200];
+    ENEMY enemies[10];
+    BLOCK blocks[500];
 
     JOGADOR top5[5];
     char *fileName =  "./save/top5.bin";
     le_arquivo(fileName, top5);
     int lowerIndex = retornaMenorIndice(top5);
 
-    char *mapFile =  "./maps/map.txt";
+    char *mapFile =  "./maps/map_3.txt";
 
     int n_enemies = 0;
     int n_blocks = 0;

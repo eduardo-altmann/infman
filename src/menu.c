@@ -7,34 +7,28 @@
 
 void drawMenu() {
 
-    //carrega textura
     Texture2D logo = LoadTexture("assets/sprites/inf_man.png");
 
-    //pega a posição do mouse
 	Vector2 mouse = GetMousePosition();
 
-    //botão "play"
 	Rectangle play = {
 	    (GetScreenWidth() / 2) - MeasureText("Play", 70) / 2,
         GetScreenHeight() / 2,
         MeasureText("Play", 70),
         70 };
 
-    //botão "scoreboard"
 	Rectangle scoreBoard = {
 	    (GetScreenWidth() / 2) - MeasureText("LeaderBoard", 70) / 2,
         (GetScreenHeight() / 2) + 80,
         MeasureText("LeaderBoard", 70),
         70 };
 
-    //botão "quit"
 	Rectangle quit = {
         (GetScreenWidth() / 2) - MeasureText("Quit", 70) / 2,
         (GetScreenHeight() / 2) + 160,
         MeasureText("Quit", 70),
         70 };
 
-    //desenha o fundo azul-escuro
 	DrawRectangle(
 		0,
 		0,
@@ -42,13 +36,11 @@ void drawMenu() {
 		GetScreenHeight(),
 		DARKBLUE);
 
-    //desenha o letreiro do menu
 	DrawTexture(logo,
 		600-250,
 		GetScreenHeight() / 2 - 150,
 		RAYWHITE);
 
-    //muda a cor do botão "play" caso o mouse esteja em cima dele
 	if (CheckCollisionPointRec(mouse, play)) {
 		DrawRectangleRec(
 			play,
@@ -57,7 +49,6 @@ void drawMenu() {
 	}
 
 
-    //muda a cor do botão "scoreBoard" caso o mouse esteja em cima dele
 	if (CheckCollisionPointRec(mouse, scoreBoard))
 		DrawRectangleRec(
 			scoreBoard,
@@ -65,14 +56,12 @@ void drawMenu() {
 		);
 
 
-    //muda a cor do botão "quit" caso o mouse esteja em cima dele
 	if (CheckCollisionPointRec(mouse, quit))
 		DrawRectangleRec(
 			quit,
 			BLUE
 		);
 
-    //escreve "Play" acima do botão correspondente
 	DrawText(
 		"Play",
 		(GetScreenWidth() / 2) - MeasureText("Play", 70) / 2,
@@ -81,7 +70,6 @@ void drawMenu() {
 		WHITE
 	);
 
-	//escreve "LeaderBoard" acima do botão correspondente
 	DrawText(
 		"LeaderBoard",
 		(GetScreenWidth() / 2) - MeasureText("LeaderBoard", 70) / 2,
@@ -90,7 +78,6 @@ void drawMenu() {
 		WHITE
 	);
 
-	//escreve "Quit" acima do botão correspondente
 	DrawText(
 		"Quit",
 		(GetScreenWidth() / 2) - MeasureText("Quit", 70) / 2,
